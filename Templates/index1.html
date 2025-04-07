@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoBridge Chatbot</title>
+    <link rel="stylesheet" href="static/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <script>
+// Select the audio element (dynamically generated)
+const audio = new Audio('/static/audio/response_.wav'); // Change path if needed
+
+// Three.js Setup
+let scene, camera, renderer, model, mixer, talkingAction;
+
+// Initialize Three.js scene and load the model
+function init() {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+    renderer = new THREE.WebGLRenderer({ alpha: true });
+    renderer.setSize(window.innerWidth * 0.4, window.innerHeight * 0.7);
+    document.body.appendChild(renderer.domElement);
+    
+    // Add light
+    const light = new THREE.AmbientLight(0xffffff);
+    scene.add(light);
+
+    // Load the 3D character (GLB/GLTF)
+    const loader = new THREE.GLTFLoader();
+    loader.load('/static/models/avatar2.0.glb', function (gltf) {
+        model = gltf.scene;
+        scene.add(model);
+
+        // Load animations
+        mixer = new THREE.AnimationMixer(model);
+        const clips = gltf.animations;
+
+        // Find the full talking animation
+        const talkingClip = THREE.AnimationClip.findByName(clips, "TalkingGesture"); 
+        if (talkingClip) {
+            talkingAction = mixer.clipAction(talkingClip);
+            talkingAction.setLoop(THREE.LoopRepeat);
+        }
+        
+        animate();
+    });
+
+    camera.position.set(0, 1.8, 1);
+    camera.lookAt(0, 1.7, 0);
+    
+}
+
+// Play the full talking animation
+function startTalkingAnimation() {
+    if (talkingAction) {
+        talkingAction.reset().play();
+    }
+}
+
+// Stop the talking animation
+function stopTalkingAnimation() {
+    if (talkingAction) {
+        talkingAction.fadeOut(0.5); // Smooth transition
+    }
+}
+
+// Event listeners to sync speech with animation
+audio.addEventListener("play", startTalkingAnimation);
+audio.addEventListener("ended", stopTalkingAnimation);
+
+// Start Three.js animation loop
+function animate() {
+    requestAnimationFrame(animate);
+    if (mixer) mixer.update(0.02); // Update animation
+    renderer.render(scene, camera);
+}
+
+// Initialize Three.js
+init();
+
+    </script>
+
+	
+    <div class="chat-container">
+        <div class="chat-header">
+            <img src="static/ecobridge_logo.png" alt="EcoBridge Logo" class="logo">
+            <h2>EcoBridge AI Chatbot</h2>
+        </div>
+        <div class="chat-box" id="chat-box"></div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type a message..." autofocus>
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <script src="static/script.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,32 @@
+venv/
+.env
+__pycache__/
+*.pyc
+static/audio/*.wav
+
+# Python virtual environment
+venv/
+env/
+
+# Python bytecode and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Generated audio files
+static/audio/*.wav
+
+# Environment variables (for sensitive data)
+.env
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# macOS system files
+.DS_Store
+
+# Temporary files
+*.log
+*.tmp
